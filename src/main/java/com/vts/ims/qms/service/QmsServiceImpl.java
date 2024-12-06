@@ -3,9 +3,11 @@ package com.vts.ims.qms.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,14 +17,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+import com.vts.ims.qms.dto.CheckListMasterDto;
 import com.vts.ims.qms.dto.DwpRevisionRecordDto;
 import com.vts.ims.qms.dto.QmsQmChaptersDto;
 import com.vts.ims.qms.dto.QmsQmDocumentSummaryDto;
+import com.vts.ims.qms.dto.QmsQmMappingDto;
 import com.vts.ims.qms.dto.QmsQmRevisionRecordDto;
 import com.vts.ims.qms.dto.QmsQmSectionsDto;
+import com.vts.ims.qms.model.DwpChapters;
+import com.vts.ims.qms.model.DwpGwpDocumentSummary;
+import com.vts.ims.qms.model.DwpRevisionRecord;
+import com.vts.ims.qms.model.DwpSections;
+import com.vts.ims.qms.model.QmsAbbreviations;
+import com.vts.ims.qms.model.QmsQmChapters;
 import com.vts.ims.qms.model.QmsQmDocumentSummary;
 import com.vts.ims.qms.model.QmsQmMappingOfClasses;
 import com.vts.ims.qms.model.QmsQmRevisionRecord;
+import com.vts.ims.qms.model.QmsQmRevisionTransaction;
 import com.vts.ims.qms.model.QmsQmSections;
 import com.vts.ims.qms.repository.DwpChaptersRepo;
 import com.vts.ims.qms.repository.DwpGwpDocumentSummaryRepo;
@@ -35,13 +46,6 @@ import com.vts.ims.qms.repository.QmsQmMappingOfClassesRepo;
 import com.vts.ims.qms.repository.QmsQmRevisionRecordRepo;
 import com.vts.ims.qms.repository.QmsQmRevisionTransactionRepo;
 import com.vts.ims.qms.repository.QmsQmSectionsRepo;
-import com.vts.ims.qms.model.QmsQmRevisionTransaction;
-import com.vts.ims.qms.model.DwpChapters;
-import com.vts.ims.qms.model.DwpGwpDocumentSummary;
-import com.vts.ims.qms.model.DwpRevisionRecord;
-import com.vts.ims.qms.model.DwpSections;
-import com.vts.ims.qms.model.QmsAbbreviations;
-import com.vts.ims.qms.model.QmsQmChapters;
 
 @Service
 public class QmsServiceImpl implements QmsService {
@@ -603,6 +607,7 @@ public class QmsServiceImpl implements QmsService {
 					QmsQmMappingOfClasses isoMappingOfClasses = new QmsQmMappingOfClasses();
 					isoMappingOfClasses.setSectionNo(mocList.get(i)[0]);
 					isoMappingOfClasses.setClauseNo(mocList.get(i)[1]);
+					isoMappingOfClasses.setIsForCheckList("N");
 					isoMappingOfClasses.setDescription(mocList.get(i).length==3 ? mocList.get(i)[2] : "");
 					isoMappingOfClasses.setRevisionRecordId(revisionRecordId);
 					res=qmsQmMappingOfClassesRepo.save(isoMappingOfClasses).getMocId();
@@ -625,6 +630,29 @@ public class QmsServiceImpl implements QmsService {
 			e.printStackTrace();
 			logger.error( "Inside service getMocList() " + e);
 			return new ArrayList<Object[]>();
+		}
+	}
+	
+	@Override
+	public List<QmsQmMappingDto> getMoctotalList() throws Exception {
+		logger.info(new Date() + " Inside getMoctotalList() " );
+		try {
+			 List<QmsQmMappingOfClasses> result = qmsQmMappingOfClassesRepo.findAll();
+			 return Optional.ofNullable(result).orElse(Collections.emptyList()).stream().map(entity -> QmsQmMappingDto.builder()
+					 									   .mocId(entity.getMocId())
+					 									   .clauseNo(entity.getClauseNo())
+					 									   .sectionNo(entity.getSectionNo())
+					 									   .mocParentId(entity.getMocParentId())
+					 									   .description(entity.getDescription())
+					 									   .revisionRecordId(entity.getRevisionRecordId())
+					 									   .isForCheckList(entity.getIsForCheckList())
+					 									   .isActive(entity.getIsActive())
+					 									   .build()).collect(Collectors.toList());
+			 
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(new Date()  + "Inside service getMoctotalList() " + e);
+			return List.of();
 		}
 	}
 	
@@ -894,6 +922,112 @@ public class QmsServiceImpl implements QmsService {
 			e.printStackTrace();
 			return 0l;
 		}
+	}
+
+	@Override
+	public Integer updateChapterDescById(CheckListMasterDto checkListMasterDto, String username) throws Exception {
+	    logger.info(" AuditServiceImpl Inside method updateChapterDescById()");
+	    Integer result = 0;
+	    try {
+	    	 result = qmsQmMappingOfClassesRepo.updateMoc(checkListMasterDto.getMocId(),checkListMasterDto.getDescription(),username,LocalDateTime.now());
+	    	
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        logger.error("AuditServiceImpl Inside method updateChapterDescById() " + e);
+	    }
+	    return result;
+	}
+	
+	@Override
+	public Integer deleteChapterDescById(String mocId, String username) throws Exception {
+	    logger.info(" AuditServiceImpl Inside method deleteChapterDescById()");
+	    Integer result = 0;
+	    try {
+	    	 result = qmsQmMappingOfClassesRepo.deleteMoc(mocId,username,LocalDateTime.now());
+	    	
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        logger.error("AuditServiceImpl Inside method deleteChapterDescById() " + e);
+	    }
+	    return result;
+	}
+	
+	@Override
+	public Integer deleteSubChapterDescById(String mocId, String username) throws Exception {
+	    logger.info(" AuditServiceImpl Inside method deleteSubChapterDescById()");
+	    Integer result = 0;
+	    try {
+	    	 result = qmsQmMappingOfClassesRepo.deleteSubChapter(mocId,username,LocalDateTime.now());
+	    	
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        logger.error("AuditServiceImpl Inside method deleteSubChapterDescById() " + e);
+	    }
+	    return result;
+	}
+
+	@Override
+	public Long addNewChapter(CheckListMasterDto checkListMasterDto, String username) throws Exception {
+	    logger.info(" AuditServiceImpl Inside method addNewChapter()");
+	    long result = 0;
+	    try {
+	    	QmsQmMappingOfClasses mapClasses = new QmsQmMappingOfClasses();
+	    	mapClasses.setSectionNo(checkListMasterDto.getSectionNo());	
+	    	if(checkListMasterDto.getLevel() == 0) {
+		    	mapClasses.setClauseNo(checkListMasterDto.getSectionNo());	
+		    	mapClasses.setMocParentId(0L);
+	    	}else if(checkListMasterDto.getLevel() == 1 || checkListMasterDto.getLevel() == 2 || checkListMasterDto.getLevel() == 3 || checkListMasterDto.getLevel() == 4) {
+		    	mapClasses.setClauseNo(checkListMasterDto.getClauseNo());	
+		    	mapClasses.setMocParentId(checkListMasterDto.getMocId());
+	    	}
+	    	
+	    	mapClasses.setDescription(checkListMasterDto.getDescription());
+	    	mapClasses.setRevisionRecordId(1L);
+	    	mapClasses.setIsActive(1);
+	    	mapClasses.setIsForCheckList("N");
+	    	mapClasses.setCreatedBy(username);
+	    	mapClasses.setCreatedDate(LocalDateTime.now());
+	    	
+	    	result = qmsQmMappingOfClassesRepo.save(mapClasses).getMocId();	    	
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        logger.error("AuditServiceImpl Inside method addNewChapter() " + e);
+	    }
+	    return result;
+	}
+
+	@Override
+	public int addChapterToMasters(List<String> mocIds, String username) throws Exception {
+	    logger.info(" AuditServiceImpl Inside method addChapterToMasters()");
+	    int result = 0;
+	    try {
+	    	for(String data : mocIds) {
+	    		String[] chapterData = data.split("#");
+	    		result = qmsQmMappingOfClassesRepo.addToCheckListMaster(chapterData[0],chapterData[1],username,LocalDateTime.now());
+	    	}
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        logger.error("AuditServiceImpl Inside method addChapterToMasters() " + e);
+	    }
+	    return result;
+	}
+
+	@Override
+	public Integer updateCheckListChapters(List<Long> mocIds, String username) throws Exception {
+	    logger.info(" AuditServiceImpl Inside method updateCheckListChapters()");
+	    int result = 0;
+	    try {
+	    	result = qmsQmMappingOfClassesRepo.deleteCheckListChapters();
+	    	if(result >0) {
+		    	for(Long id : mocIds) {
+		    		result = qmsQmMappingOfClassesRepo.updateCheckListChapters(id,username,LocalDateTime.now());
+		    	}
+	    	}
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        logger.error("AuditServiceImpl Inside method updateCheckListChapters() " + e);
+	    }
+	    return result;
 	}
 	
 	@Override
