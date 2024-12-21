@@ -32,4 +32,5 @@ public class AuditScheduleListDto {
 	private String message; 
 	private String auditeeFlag; 
 	private Long fwdFlag; 
+	private String scope;
 }

@@ -1485,6 +1485,8 @@ public class AuditServiceImpl implements AuditService{
 				    			.divisionName(division !=null?division.getDivisionName():"")
 				    			.groupName(group !=null?group.getGroupName():"")
 				    			.projectName(project !=null?project.getProjectName():"")
+				    			.scope(obj[20]!=null?obj[20].toString():"")
+				    			
 				    			.build();
 				    })
 				    .collect(Collectors.toList());
