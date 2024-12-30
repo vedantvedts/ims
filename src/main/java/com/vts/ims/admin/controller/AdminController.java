@@ -162,7 +162,6 @@ public class AdminController {
 	     String logoutType = requestBody.get("logoutType").asText();
 	     Login login = loginRepo.findByUsername(username);
 	     loginid = login.getLoginId();
-
 	     try {
 	         if (loginid > 0) {
 	             LoginStamping stamping = new LoginStamping();
@@ -379,5 +378,40 @@ public class AdminController {
 			 return ResponseEntity.status(500).body("Error occurred: " + e.getMessage());
 		}
 	}
+	
+	 @PostMapping(value = "/get-notification", produces="application/json")
+		public ResponseEntity<List<NotificationDto>> getNotification(@RequestHeader  String username) throws Exception {
+			logger.info(new Date() +" Inside get get-notification List " +username);
+			List<NotificationDto> result = service.notifictionList(username);
+			if (result != null) {
+				return new ResponseEntity<>(result, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			}
+		}
+
+	    @PostMapping(value = "/get-notification-count", produces="application/json")
+		public ResponseEntity<Long> getNotificationCount(@RequestHeader  String username) throws Exception {
+			logger.info(new Date() +" Inside get get-notification-count" +username);
+			long result = service.notifictionCount(username);
+			if (result != 0) {
+				return new ResponseEntity<>(result, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			}
+		}
+	    
+	    @PostMapping(value = "/update-notification", produces="application/json")
+		public ResponseEntity<Long> updateNotification(@RequestHeader  String username, @RequestBody String notificationId) throws Exception {
+			logger.info(new Date() +" Inside  update-notification  " +username);
+			long result = service.updateNotification(username,notificationId);
+			if (result != 0) {
+				return new ResponseEntity<>(result, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			}
+		}
+	    	
+	    
 	
 }

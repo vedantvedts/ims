@@ -8,6 +8,8 @@ import com.vts.ims.admin.dto.*;
 import com.vts.ims.admin.entity.FormRoleAccess;
 import com.vts.ims.admin.repository.*;
 import com.vts.ims.login.Login;
+import com.vts.ims.login.LoginRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,9 @@ import com.vts.ims.master.dao.MasterClient;
 import com.vts.ims.master.dto.EmployeeDto;
 import com.vts.ims.master.dto.LoginDetailsDto;
 import com.vts.ims.master.service.MasterService;
+import com.vts.ims.model.ImsNotification;
 import com.vts.ims.model.LoginStamping;
+
 
 
 @Service
@@ -55,6 +59,13 @@ public class AdminServiceImpl implements AdminService {
     
     @Autowired
     ApprovalAuthorityRepository approvalAuthorityRepo;
+    
+	
+	@Autowired
+	LoginRepository loginRepo;
+	
+	@Autowired
+	NotificationRepository notificationRepo;
 	
 	
 	@Value("${x_api_key}")
@@ -641,4 +652,83 @@ public class AdminServiceImpl implements AdminService {
 			return result;
 		}
 	}
+	
+	@Override
+	public List<NotificationDto> notifictionList(String username) throws Exception {
+	    Login login = loginRepo.findByUsername(username);
+	    List<Object[]> notificationList = notificationRepo.getNotifictionList(login.getEmpId());
+	    List<EmployeeDto> allEmployeeList = masterClient.getEmployeeList(xApiKey);
+
+	    // Create a map of employee No to employee information (name, designation)
+	    Map<Long, EmpInfoDto> empIdToInfoMap = allEmployeeList.stream()
+	            .collect(Collectors.toMap(
+	                    EmployeeDto::getEmpId,
+	                    emp -> new EmpInfoDto(emp.getEmpName(), emp.getEmpDesigCode()),
+	                    (existing, replacement) -> existing // Handle duplicates temporarily
+	            ));
+
+	    return notificationList.stream()
+	            .map(list -> {
+	                Long empId = list[1] != null ? Long.parseLong(list[1].toString()) : 0;
+	                EmpInfoDto empInfo = empIdToInfoMap.get(empId);
+
+	                return NotificationDto.builder()
+	                        .notificationId(list[0] != null ? Long.parseLong(list[0].toString()) : 0)
+	                        .empName(empInfo != null ? empInfo.getEmpName() : null)
+	                        .empDesig(empInfo != null ? empInfo.getEmpDesig() : null)
+	                        .notificationMessage(list[5] != null ? list[5].toString() : "")
+	                        .notificationUrl(list[3] != null ? list[3].toString() : "")
+	                        .build();
+	            })
+	            .collect(Collectors.toList());
+	}
+	
+	@Override
+	public long notifictionCount(String username) throws Exception {
+		Login login=loginRepo.findByUsername(username);
+		long count = 0;
+		try {
+			count  = notificationRepo.getNotifictionCount(login.getEmpId());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("AuditServiceImpl Inside method notifictionCount()"+ e);
+		}
+		return count;
+	}
+	
+	@Override
+	public long updateNotification(String userName, String notificationId) throws Exception {
+	    logger.info(new Date() + " AdminServiceImpl Inside method updateNotification ");
+	    try {
+	        // Find the notification by ID
+	        Optional<ImsNotification> notifOptional = notificationRepo.findById(Long.parseLong(notificationId));
+
+	        if (notifOptional.isPresent()) {
+	            // Get the notification object from the Optional
+	            ImsNotification notification = notifOptional.get();
+
+	            // Update the necessary fields
+	            notification.setModifiedBy(userName);
+	            notification.setModifiedDate(LocalDateTime.now());
+	            notification.setIsActive(0); 
+
+	            // Save the updated entity back to the repository
+	            ImsNotification updatedNotification = notificationRepo.save(notification);
+
+	            // Return the ID of the updated notification
+	            return updatedNotification.getNotificationId();
+	        } else {
+	            logger.error("Notification with ID " + notificationId + " not found.");
+	            throw new Exception("Notification not found");
+	        }
+	    } catch (Exception e) {
+	        logger.error("Error in updateNotification: " + e.getMessage(), e);
+	        throw e;
+	    }
+	}
+
+	
+	
+	
 }
