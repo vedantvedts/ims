@@ -9,5 +9,6 @@ public class CheckListItem {
     private String auditorRemarks;
     private String auditeeRemarks;
     private String attachment;
+    private String mocDescription;
 
 }

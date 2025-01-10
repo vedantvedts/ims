@@ -30,6 +30,8 @@ public class AuditClosure {
 	@Column(name = "ActEmpId")
 	private Long actEmpId;
 	
+	@Column(name = "AttachmentName")
+	private String attachmentName;
 	
 	@Column(name = "Remarks")
 	private String remarks;

@@ -30,6 +30,9 @@ public class AuditCheckList {
 	@Column(name = "MocId")
 	private Long mocId;
 	
+	@Column(name = "MocDescription")
+	private String mocDescription;
+	
 	@Column(name = "AuditObsId")
 	private Long auditObsId;
 	

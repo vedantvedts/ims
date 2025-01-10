@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.vts.ims.audit.dto.AuditCarDTO;
 import com.vts.ims.audit.dto.AuditCheckListDTO;
 import com.vts.ims.audit.dto.AuditClosureDTO;
+import com.vts.ims.audit.dto.AuditClosureDateDTO;
 import com.vts.ims.audit.dto.AuditCorrectiveActionDTO;
 import com.vts.ims.audit.dto.AuditRescheduleDto;
 import com.vts.ims.audit.dto.AuditScheduleDto;
@@ -149,6 +150,10 @@ public interface AuditService {
 	public List<AuditClosure> getAuditClosureList()throws Exception;
 	
 	public long updateAuditClosure(AuditClosureDTO auditClosureDTO, String username)throws Exception;
+	
+	public long uploadAuditClosureFile(MultipartFile file, Map<String, Object> response)throws Exception;
+	
+	public List<AuditClosureDateDTO> getClosureDate()throws Exception;
 
 	public List<CheckListDto> getMostFreqNCDetails(Long mocId)throws Exception;
 

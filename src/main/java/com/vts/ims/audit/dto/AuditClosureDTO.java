@@ -13,6 +13,9 @@ public class AuditClosureDTO {
     private Long iqaId;
     private String content;
     private LocalDateTime completionDate;
+    private String attchmentName;
+    private String iqaNo;
+    private String oldAttchmentName;
 
 }
 

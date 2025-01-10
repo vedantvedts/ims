@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vts.ims.audit.dto.AuditCarDTO;
 import com.vts.ims.audit.dto.AuditCheckListDTO;
 import com.vts.ims.audit.dto.AuditClosureDTO;
+import com.vts.ims.audit.dto.AuditClosureDateDTO;
 import com.vts.ims.audit.dto.AuditCorrectiveActionDTO;
 import com.vts.ims.audit.dto.AuditRescheduleDto;
 import com.vts.ims.audit.dto.AuditScheduleDto;
@@ -596,7 +597,7 @@ public class AuditController {
 	@PostMapping(value = "/insert-iqa-auditee", produces = "application/json")
 	public ResponseEntity<String> insertiqaauditee(@RequestHeader String username, @RequestBody IqaAuditeeDto iqaAuditeeDto) throws Exception {
 		try {
-			logger.info(new Date() + " Inside insertiqaauditee" );
+			logger.info( " Inside insertiqaauditee" );
 			long insertIqaAuditee=auditService.insertIqaAuditee(iqaAuditeeDto,username);
 			 if(insertIqaAuditee > 0) {
 				 return new ResponseEntity<String>("200" , HttpStatus.OK);
@@ -604,7 +605,7 @@ public class AuditController {
 				 return new ResponseEntity<String>("500" , HttpStatus.BAD_REQUEST);
 			 }
 		} catch (Exception e) {
-			 logger.error(new Date() +"error in insertiqaauditee"+ e.getMessage());
+			 logger.error("error in insertiqaauditee"+ e.getMessage());
 			 e.printStackTrace();
 			 return ResponseEntity.status(500).body("Error occurred: " + e.getMessage());
 		}
@@ -613,7 +614,7 @@ public class AuditController {
 	@PostMapping(value = "/get-observation", produces = "application/json")
 	public ResponseEntity<List<AuditObservation>> getObservation(@RequestHeader String username) throws Exception {
 		try {
-			logger.info(new Date() + " Inside getObservation" );
+			logger.info( " Inside getObservation" );
 			List<AuditObservation> dto=auditService.getObservation();
 			return new ResponseEntity<List<AuditObservation>>( dto,HttpStatus.OK);
 		} catch (Exception e) {
@@ -679,7 +680,7 @@ public class AuditController {
 	@PostMapping(value = "/get-audit-check-list", produces = "application/json")
 	public ResponseEntity<List<CheckListDto>> getAuditCheckList(@RequestHeader String username,@RequestBody String scheduleId) throws Exception {
 		try {
-			logger.info(new Date() + " Inside getAuditCheckList" );
+			logger.info(" Inside getAuditCheckList" );
 			List<CheckListDto> dto=auditService.getAuditCheckList(scheduleId);
 			return new ResponseEntity<List<CheckListDto>>( dto,HttpStatus.OK);
 		} catch (Exception e) {
@@ -692,7 +693,7 @@ public class AuditController {
 	@PostMapping(value = "/get-car-list", produces = "application/json")
 	public ResponseEntity<List<AuditCorrectiveActionDTO>> getCarList(@RequestHeader String username) throws Exception {
 		try {
-			logger.info(new Date() + " Inside getCarList" );
+			logger.info( " Inside getCarList" );
 			List<AuditCorrectiveActionDTO> dto=auditService.getCarList();
 			return new ResponseEntity<List<AuditCorrectiveActionDTO>>( dto,HttpStatus.OK);
 		} catch (Exception e) {
@@ -723,7 +724,7 @@ public class AuditController {
 	public ResponseEntity<Response> uploadCheckListImage(@RequestHeader  String username, @RequestParam("ad") String attachment,
 			@RequestParam("file") MultipartFile file) throws Exception {
 
-		logger.info(new Date() + " Inside upload-check-list-img " + username);
+		logger.info( " Inside upload-check-list-img " + username);
 		long result = 0;
 		String message = "attachment------------- " + attachment;
 		Map<String, Object> response = null;
@@ -731,7 +732,7 @@ public class AuditController {
 			response = new ObjectMapper().readValue(attachment, HashMap.class);
 			result =	auditService.uploadCheckListImage(file, response, username);
 		} catch (Exception e) {
-			logger.info(new Date() + " Inside uploadCheckListImage " + e);
+			logger.info(" Inside uploadCheckListImage " + e);
 		}
 		if (result > 0) {
 			message = "Image successfully uploaded: " + response.get("attachmentName");
@@ -875,14 +876,14 @@ public class AuditController {
 	public ResponseEntity<Response> uploadCarAttachment(@RequestHeader  String username, @RequestParam("ad") String attachment,
 			@RequestParam("file") MultipartFile file) throws Exception {
 		
-		logger.info(new Date() + " Inside upload-car-attachment " + username);
+		logger.info( " Inside upload-car-attachment " + username);
 		long result = 0;
 		Map<String, Object> response = null;
 		try {
 			response = new ObjectMapper().readValue(attachment, HashMap.class);
 			result = auditService.uploadCarAttachment(file, response, username);
 		} catch (Exception e) {
-			logger.info(new Date() + " Inside uploadCarAttachment " + e);
+			logger.info( " Inside uploadCarAttachment " + e);
 		}
 		if (result > 0) {
 			return ResponseEntity.status(HttpStatus.OK).body(new Response("Corrective Actions Added Successfully","S"));
@@ -894,7 +895,7 @@ public class AuditController {
 	@GetMapping("/car-download")
 	public ResponseEntity<Resource> downloadCarFile(String fileName, String reqNo, @RequestHeader  String username,
 			HttpServletResponse res) throws Exception {
-		logger.info(new Date() + " car-download " + username);
+		logger.info( " car-download " + username);
 		Path filePath = null;
 		filePath = Paths.get(storageDrive,"CAR",reqNo.replace("/", "_"),fileName);
 		File file = filePath.toFile();
@@ -934,7 +935,7 @@ public class AuditController {
 	@PostMapping(value = "/car-approve-emp-data", produces = "application/json")
 	public ResponseEntity<List<AuditTranDto>> carApproveEmpData(@RequestHeader String username,@RequestBody String carId) throws Exception {
 		try {
-			logger.info(new Date() + " Inside carApproveEmpData" );
+			logger.info( " Inside carApproveEmpData" );
 			List<AuditTranDto> dto=auditService.carApproveEmpData(carId);
 			return new ResponseEntity<List<AuditTranDto>>( dto,HttpStatus.OK);
 		} catch (Exception e) {
@@ -964,7 +965,7 @@ public class AuditController {
 	@GetMapping("/check-list-file-download")
 	public ResponseEntity<Resource> downloadCheckListFile(String fileName, String iqaNo,String scheduleId, @RequestHeader  String username,
 			HttpServletResponse res) throws Exception {
-		logger.info(new Date() + " check-list-file-download " + username);
+		logger.info(" check-list-file-download " + username);
 		Path filePath = null;
 		String iqaNoData = iqaNo.replace("/", "_")+" - "+scheduleId;
 		filePath = Paths.get(storageDrive,"CheckListUploads",iqaNoData,fileName);
@@ -988,7 +989,7 @@ public class AuditController {
 	@PostMapping(value = "/get-iqa-schedule-list", produces = "application/json")
 	public ResponseEntity<List<IqaScheduleDto>> getIqaScheduleList(@RequestHeader String username) throws Exception {
 		try {
-			logger.info(new Date() + " Inside getIqaScheduleList" );
+			logger.info(" Inside getIqaScheduleList" );
 			List<IqaScheduleDto> dto=auditService.getIqaScheduleList();
 			return new ResponseEntity<List<IqaScheduleDto>>( dto,HttpStatus.OK);
 		} catch (Exception e) {
@@ -1001,12 +1002,12 @@ public class AuditController {
 	@PostMapping(value = "/add-audit-closure", produces = "application/json")
 	public ResponseEntity<Response> addAuditClosure( @RequestBody AuditClosureDTO auditClosureDTO, @RequestHeader String username) throws Exception {
 		
-		logger.info(new Date() + " Inside add-audit-closure " + username);
+		logger.info( " Inside add-audit-closure " + username);
 		long result = 0;
 		try {
 			result = auditService.addAuditClosure(auditClosureDTO, username);
 		} catch (Exception e) {
-			logger.info(new Date() + " Inside add-audit-closure " + e);
+			logger.info(" Inside add-audit-closure " + e);
 		}
 		if (result > 0) {
 			return ResponseEntity.status(HttpStatus.OK).body(new Response("Audit Closure Added Successfully","S"));
@@ -1018,7 +1019,7 @@ public class AuditController {
 	@PostMapping(value = "/get-audit-closure-list", produces = "application/json")
 	public ResponseEntity<List<AuditClosure>> getAuditClosureList(@RequestHeader String username) throws Exception {
 		try {
-			logger.info(new Date() + " Inside getAuditClosureList" );
+			logger.info( " Inside getAuditClosureList" );
 			List<AuditClosure> dto=auditService.getAuditClosureList();
 			return new ResponseEntity<List<AuditClosure>>( dto,HttpStatus.OK);
 		} catch (Exception e) {
@@ -1031,17 +1032,77 @@ public class AuditController {
 	@PostMapping(value = "/update-audit-closure", produces = "application/json")
 	public ResponseEntity<Response> updateAuditClosure( @RequestBody AuditClosureDTO auditClosureDTO, @RequestHeader String username) throws Exception {
 		
-		logger.info(new Date() + " Inside update-audit-closure " + username);
+		logger.info( " Inside update-audit-closure " + username);
 		long result = 0;
 		try {
 			result = auditService.updateAuditClosure(auditClosureDTO, username);
 		} catch (Exception e) {
-			logger.info(new Date() + " Inside update-audit-closure " + e);
+			logger.info(" Inside update-audit-closure " + e);
 		}
 		if (result > 0) {
 			return ResponseEntity.status(HttpStatus.OK).body(new Response("Audit Closure Updated Successfully","S"));
 		} else {
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new Response("Audit Closure Update Unsuccessful","F"));
+		}
+	}
+	
+	@PostMapping("/upload-audit-closure-file")
+	public ResponseEntity<Response> uploadAuditClosureFile(@RequestHeader  String username, @RequestParam("ad") String attachment,
+			@RequestParam("file") MultipartFile file) throws Exception {
+
+		logger.info(" Inside upload-audit-closure-file " + username);
+		long result = 0;
+		String message = "attachment------------- " + attachment;
+		Map<String, Object> response = null;
+		try {
+			response = new ObjectMapper().readValue(attachment, HashMap.class);
+			result =	auditService.uploadAuditClosureFile(file, response);
+		} catch (Exception e) {
+			logger.info(" Inside uploadAuditClosureFile " + e);
+		}
+		if (result > 0) {
+			message = "File successfully uploaded: " + response.get("attachmentName");
+			return ResponseEntity.status(HttpStatus.OK).body(new Response(message));
+		} else {
+			message = "Could not Upload the File " + response.get("attachmentName");
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new Response(message));
+		}
+
+	}
+	
+	@GetMapping("/audit-closure-file-download")
+	public ResponseEntity<Resource> downloadAuditClosureFile(String fileName, String iqaNo, @RequestHeader  String username,
+			HttpServletResponse res) throws Exception {
+		logger.info("audit-closure-file-download " + username);
+		Path filePath = null;
+		filePath = Paths.get(storageDrive,"AuditClosure",iqaNo.replace("/", "_"),fileName);
+		File file = filePath.toFile();
+
+		HttpHeaders header = new HttpHeaders();
+		header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
+		header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+		header.add("Pragma", "no-cache");
+		header.add("Expires", "0");
+
+		Path path = Paths.get(file.getAbsolutePath());
+
+		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+		return ResponseEntity.ok().headers(header).contentLength(file.length())
+				.contentType(MediaType.parseMediaType("application/octet-stream")).body(resource);
+
+	}
+	
+	@PostMapping(value = "/gat-closure-date", produces = "application/json")
+	public ResponseEntity<List<AuditClosureDateDTO>> getClosureDate(@RequestHeader String username) throws Exception {
+		try {
+			logger.info( " Inside getClosureDate" );
+			List<AuditClosureDateDTO> dto=auditService.getClosureDate();
+			return new ResponseEntity<List<AuditClosureDateDTO>>( dto,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error fetching getClosureDate: ", e);
+			return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
 		}
 	}
 }
