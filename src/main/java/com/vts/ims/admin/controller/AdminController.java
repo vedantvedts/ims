@@ -433,5 +433,23 @@ public class AdminController {
 				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 			}
 		}
+	    
+	    
+	    @PostMapping(value = "/update-audit-patch", produces="application/json")
+		public ResponseEntity<String> updateAuditPatch(@RequestHeader  String username, @RequestBody AuditPatchDto auditPatchDto) throws Exception {
+			logger.info(new Date() +" Inside update-audit-patch" +username);
+			try {
+			Long result = service.updateAuditPatch(auditPatchDto,username);
+			if(result > 0) {
+				 return new ResponseEntity<String>("200" , HttpStatus.OK);
+			 }else {
+				 return new ResponseEntity<String>("500" , HttpStatus.BAD_REQUEST);
+			 }
+			} catch (Exception e) {
+				 logger.error("update-approval-authority"+ e.getMessage());
+				 e.printStackTrace();
+				 return ResponseEntity.status(500).body("Error occurred: " + e.getMessage());
+			}
+		}
 	
 }

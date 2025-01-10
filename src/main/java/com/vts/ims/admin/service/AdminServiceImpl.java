@@ -778,4 +778,26 @@ public class AdminServiceImpl implements AdminService {
 		}
 	}
 	
+	@Override
+	public Long updateAuditPatch(AuditPatchDto auditPatchDto,String username) throws Exception {
+		 logger.info(new Date() + " AdminServiceImpl Inside method updateAuditPatch ");
+		try {
+			 Optional<AuditPatch> auditOptional = auditPatchRepo.findById(auditPatchDto.getAuditPatchesId());
+			 if (auditOptional.isPresent()) {
+		            AuditPatch auditPatch = auditOptional.get();
+		            auditPatch.setDescription(auditPatchDto.getDescription());
+		            auditPatch.setModifiedBy(username);
+		            auditPatch.setModifiedDate(LocalDateTime.now());
+		            AuditPatch updateAuditPatch = auditPatchRepo.save(auditPatch);
+		            return updateAuditPatch.getAuditPatchesId();
+		        } else {
+		            logger.error("Audit Patch with ID " + auditPatchDto.getAuditPatchesId() + " not found.");
+		            throw new Exception("Audit Patch not found");
+		        }
+		} catch (Exception e) {
+			 logger.error("Error in updateAuditPatch: " + e.getMessage(), e);
+		        throw e;
+		}
+	}
+	
 }

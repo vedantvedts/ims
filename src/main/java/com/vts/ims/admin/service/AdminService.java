@@ -35,4 +35,5 @@ public interface AdminService {
     public List<NotificationDto> getNotifictionList(String username)throws Exception;
     public long updateNotification(String Username, String notificationId) throws Exception;
 	public List<AuditPatchDto> getAuditPatchList() throws Exception;
+	public Long updateAuditPatch(AuditPatchDto auditPatchDto,String username) throws Exception;
 }
